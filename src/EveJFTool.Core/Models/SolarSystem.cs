@@ -6,4 +6,5 @@ public sealed record SolarSystem(
     double X,
     double Y,
     double Z,
-    double SecurityStatus);
+    double SecurityStatus,
+    int RegionId = 0);

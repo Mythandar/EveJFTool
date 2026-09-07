@@ -59,6 +59,16 @@ public sealed class RouteCalculator(IUniverseRepository universe)
             return new(request.FromSystem, request.ToSystem, request.Kind, 0, 0, ship.IsotopeName, isotopePrice, 0, true, "Gate");
         }
 
+        if (to.SecurityStatus >= 0.45)
+        {
+            return Invalid(request, $"Cannot jump into high-security system {to.Name}", ship.IsotopeName);
+        }
+
+        if (to.RegionId == 10_000_070)
+        {
+            return Invalid(request, "Jump drives cannot target Pochven", ship.IsotopeName);
+        }
+
         var distance = DistanceCalculator.InLightYears(from, to);
         var maximumRange = FuelCalculator.MaximumRange(ship, skills);
         if (distance > maximumRange + 1e-9)

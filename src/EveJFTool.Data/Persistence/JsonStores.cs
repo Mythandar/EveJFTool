@@ -6,6 +6,9 @@ namespace EveJFTool.Data.Persistence;
 
 public sealed class JsonStores(string settingsPath, string routesPath, IAppLogger logger)
 {
+    private readonly SemaphoreSlim _settingsWriteLock = new(1, 1);
+    private readonly SemaphoreSlim _routesWriteLock = new(1, 1);
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -34,8 +37,16 @@ public sealed class JsonStores(string settingsPath, string routesPath, IAppLogge
 
     public async Task SaveSettingsAsync(UserSettings settings, CancellationToken cancellationToken = default)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(settingsPath)!);
-        await WriteAtomicallyAsync(settingsPath, settings, cancellationToken);
+        await _settingsWriteLock.WaitAsync(cancellationToken);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(settingsPath)!);
+            await WriteAtomicallyAsync(settingsPath, settings, cancellationToken);
+        }
+        finally
+        {
+            _settingsWriteLock.Release();
+        }
     }
 
     public async Task<IReadOnlyList<SavedRoute>> LoadRoutesAsync(CancellationToken cancellationToken = default)
@@ -60,8 +71,16 @@ public sealed class JsonStores(string settingsPath, string routesPath, IAppLogge
 
     public async Task SaveRoutesAsync(IEnumerable<SavedRoute> routes, CancellationToken cancellationToken = default)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(routesPath)!);
-        await WriteAtomicallyAsync(routesPath, routes.OrderBy(route => route.Name).ToArray(), cancellationToken);
+        await _routesWriteLock.WaitAsync(cancellationToken);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(routesPath)!);
+            await WriteAtomicallyAsync(routesPath, routes.OrderBy(route => route.Name).ToArray(), cancellationToken);
+        }
+        finally
+        {
+            _routesWriteLock.Release();
+        }
     }
 
     private static async Task WriteAtomicallyAsync<T>(string path, T value, CancellationToken cancellationToken)

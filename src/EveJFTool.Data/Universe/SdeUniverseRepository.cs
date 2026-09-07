@@ -48,7 +48,8 @@ public sealed class SdeUniverseRepository(
                 item.Position.X,
                 item.Position.Y,
                 item.Position.Z,
-                item.SecurityStatus);
+                item.SecurityStatus,
+                item.RegionId);
         }
 
         _systemNames = _systems.Keys.Order(StringComparer.OrdinalIgnoreCase).ToArray();
@@ -79,6 +80,9 @@ public sealed class SdeUniverseRepository(
 
         [System.Text.Json.Serialization.JsonPropertyName("securityStatus")]
         public double SecurityStatus { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("regionID")]
+        public int RegionId { get; set; }
     }
 
     private sealed class LocalizedName

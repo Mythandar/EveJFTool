@@ -507,7 +507,7 @@ public sealed class MainViewModel : ObservableObject
             return;
         }
 
-        if (saveAs && string.Equals(name, _loadedRouteName, StringComparison.OrdinalIgnoreCase))
+        if (saveAs && SavedRoutes.Any(route => string.Equals(route.Name, name, StringComparison.OrdinalIgnoreCase)))
         {
             var baseName = name + " Copy";
             name = baseName;

@@ -84,6 +84,8 @@ lightYears = meters / 9,460,000,000,000,000.0
 
 CCP specifies exactly `9.46 × 10^15` meters per EVE light-year for jump range, slightly different from the scientific constant. Source: [CCP developer map-data guide](https://developers.eveonline.com/docs/guides/map-data/).
 
+Jump legs also reject a high-security destination and Pochven. A high-security system can still be an origin for a jump to eligible space, and high-security destinations remain available as Gate legs.
+
 ## Market pricing
 
 Jita buy/sell uses CCP's public ESI regional market-orders endpoint for The Forge (region 10000002), filtered to Jita IV – Moon 4 – Caldari Navy Assembly Plant (location 60003760). Sell is the lowest station sell order; buy is the highest station buy order. ESI requires no login for this endpoint. Responses are cached locally and identified as cached/stale when live retrieval fails. Manual per-isotope prices remain available offline.
