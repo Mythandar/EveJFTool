@@ -114,8 +114,17 @@
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <TextBlock Text="ROUTE SYSTEMS" FontSize="12" FontWeight="Bold" Foreground="#8FA1B8" Margin="4,2,4,8" />
-                    <ComboBox Grid.Row="1" ItemsSource="{Binding SystemNames}" Text="{Binding NewSystemName, UpdateSourceTrigger=PropertyChanged}"
-                              IsEditable="True" IsTextSearchEnabled="True" StaysOpenOnEdit="True" MaxDropDownHeight="320" ToolTip="Type an exact EVE solar-system name" />
+                    <ComboBox Grid.Row="1" ItemsSource="{Binding SystemSuggestions}" Text="{Binding NewSystemName, UpdateSourceTrigger=PropertyChanged}"
+                              IsDropDownOpen="{Binding IsSystemSuggestionOpen, Mode=TwoWay}"
+                              IsEditable="True" IsTextSearchEnabled="False" StaysOpenOnEdit="True"
+                              MaxDropDownHeight="300" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ToolTip="Type any part of an EVE solar-system name">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Height" Value="30" />
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
                     <ListBox Grid.Row="2" ItemsSource="{Binding Systems}" SelectedItem="{Binding SelectedSystem}" DisplayMemberPath="Name"
                              Margin="4,8" Background="#101A29" Foreground="#E8EDF4" BorderBrush="#314158" FontSize="14" />
                     <WrapPanel Grid.Row="3">
@@ -152,8 +161,14 @@
                         <DataGridTemplateColumn Header="Jump / Gate" Width="105">
                             <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox ItemsSource="{Binding LegKinds}" SelectedItem="{Binding Kind, UpdateSourceTrigger=PropertyChanged}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Economizer loadout" Width="240">
-                            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox ItemsSource="{Binding EconomizerOptions}" DisplayMemberPath="DisplayName" SelectedItem="{Binding SelectedEconomizer, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsJump}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn Header="Economizer 1" Width="145">
+                            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox ItemsSource="{Binding EconomizerTypes}" DisplayMemberPath="DisplayName" SelectedItem="{Binding Economizer1, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsJump}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Economizer 2" Width="145">
+                            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox ItemsSource="{Binding EconomizerTypes}" DisplayMemberPath="DisplayName" SelectedItem="{Binding Economizer2, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsJump}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Economizer 3" Width="145">
+                            <DataGridTemplateColumn.CellTemplate><DataTemplate><ComboBox ItemsSource="{Binding EconomizerTypes}" DisplayMemberPath="DisplayName" SelectedItem="{Binding Economizer3, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsJump}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Header="Fuel Used" Binding="{Binding FuelUsed}" IsReadOnly="True" Width="100" />
                         <DataGridTextColumn Header="Fuel Type" Binding="{Binding FuelType}" IsReadOnly="True" Width="135" />

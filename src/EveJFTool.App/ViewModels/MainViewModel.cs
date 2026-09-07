@@ -26,6 +26,8 @@ public sealed class MainViewModel : ObservableObject
     private PriceMode _selectedPriceMode = PriceMode.JitaSell;
     private decimal? _manualPrice;
     private string _newSystemName = string.Empty;
+    private IReadOnlyList<string> _systemSuggestions = [];
+    private bool _isSystemSuggestionOpen;
     private RouteSystemViewModel? _selectedSystem;
     private SavedRoute? _selectedSavedRoute;
     private string _routeName = string.Empty;
@@ -52,7 +54,6 @@ public sealed class MainViewModel : ObservableObject
         _logger = logger;
         _calculator = new RouteCalculator(universe);
 
-        EconomizerOptions = EconomizerOption.CreateAll();
         AddSystemCommand = new RelayCommand(AddSystem, () => !string.IsNullOrWhiteSpace(NewSystemName));
         InsertSystemCommand = new RelayCommand(InsertSystem, () => SelectedSystem is not null && !string.IsNullOrWhiteSpace(NewSystemName));
         RemoveSystemCommand = new RelayCommand(RemoveSystem, () => SelectedSystem is not null);
@@ -70,7 +71,6 @@ public sealed class MainViewModel : ObservableObject
     public IReadOnlyList<ShipDefinition> Ships => JumpFreighterCatalog.All;
     public IReadOnlyList<int> SkillLevels { get; } = [0, 1, 2, 3, 4, 5];
     public IReadOnlyList<PriceMode> PriceModes { get; } = Enum.GetValues<PriceMode>();
-    public IReadOnlyList<EconomizerOption> EconomizerOptions { get; }
     public IReadOnlyList<string> SystemNames { get; private set; } = [];
     public ObservableCollection<RouteSystemViewModel> Systems { get; } = [];
     public ObservableCollection<RouteLegViewModel> Legs { get; } = [];
@@ -198,8 +198,21 @@ public sealed class MainViewModel : ObservableObject
             {
                 AddSystemCommand.RaiseCanExecuteChanged();
                 InsertSystemCommand.RaiseCanExecuteChanged();
+                UpdateSystemSuggestions();
             }
         }
+    }
+
+    public IReadOnlyList<string> SystemSuggestions
+    {
+        get => _systemSuggestions;
+        private set => SetProperty(ref _systemSuggestions, value);
+    }
+
+    public bool IsSystemSuggestionOpen
+    {
+        get => _isSystemSuggestionOpen;
+        set => SetProperty(ref _isSystemSuggestionOpen, value);
     }
 
     public RouteSystemViewModel? SelectedSystem
@@ -274,6 +287,7 @@ public sealed class MainViewModel : ObservableObject
             await _universe.InitializeAsync(cancellationToken);
             SystemNames = _universe.SystemNames;
             OnPropertyChanged(nameof(SystemNames));
+            UpdateSystemSuggestions();
 
             _settings = await _stores.LoadSettingsAsync(cancellationToken);
             _selectedShip = JumpFreighterCatalog.All.FirstOrDefault(ship => ship.Name == _settings.SelectedShip) ?? JumpFreighterCatalog.All[0];
@@ -344,6 +358,27 @@ public sealed class MainViewModel : ObservableObject
         return false;
     }
 
+    private void UpdateSystemSuggestions()
+    {
+        var query = NewSystemName.Trim();
+        if (query.Length == 0 || SystemNames.Count == 0)
+        {
+            SystemSuggestions = [];
+            IsSystemSuggestionOpen = false;
+            return;
+        }
+
+        SystemSuggestions = SystemNames
+            .Where(name => name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(name => name.StartsWith(query, StringComparison.OrdinalIgnoreCase))
+            .ThenBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        IsSystemSuggestionOpen =
+            SystemSuggestions.Count > 0 &&
+            !_universe.TryGetSystem(query, out _);
+    }
+
     private void RemoveSystem()
     {
         if (SelectedSystem is null) return;
@@ -393,8 +428,8 @@ public sealed class MainViewModel : ObservableObject
             var from = Systems[index].Name;
             var to = Systems[index + 1].Name;
             var leg = prior.TryGetValue((from, to), out var existing)
-                ? new RouteLegViewModel(from, to, existing.Kind, existing.SelectedEconomizer, EconomizerOptions)
-                : new RouteLegViewModel(from, to, LegKind.Jump, EconomizerOptions[0], EconomizerOptions);
+                ? new RouteLegViewModel(from, to, existing.Kind, existing.EconomizerLoadout)
+                : new RouteLegViewModel(from, to, LegKind.Jump, EconomizerLoadout.None);
             leg.ConfigurationChanged += OnLegConfigurationChanged;
             Legs.Add(leg);
         }
@@ -528,7 +563,7 @@ public sealed class MainViewModel : ObservableObject
                 From = leg.From,
                 To = leg.To,
                 Kind = leg.Kind,
-                EconomizerTypeIds = leg.SelectedEconomizer.Loadout.Modules.Select(module => module.TypeId).ToList()
+                EconomizerTypeIds = leg.EconomizerLoadout.Modules.Select(module => module.TypeId).ToList()
             }).ToList(),
             ShipName = SelectedShip.Name,
             JumpDriveCalibration = JumpDriveCalibration,
@@ -559,8 +594,12 @@ public sealed class MainViewModel : ObservableObject
         {
             var saved = route.Legs[index];
             Legs[index].Kind = saved.Kind;
-            var key = EconomizerOption.KeyFor(saved.EconomizerTypeIds);
-            Legs[index].SelectedEconomizer = EconomizerOptions.FirstOrDefault(option => option.Key == key) ?? EconomizerOptions[0];
+            var economizers = saved.EconomizerTypeIds
+                .Select(typeId => EconomizerCatalog.All.FirstOrDefault(module => module.TypeId == typeId))
+                .OfType<EconomizerDefinition>()
+                .Take(3)
+                .ToArray();
+            Legs[index].SetEconomizerLoadout(new EconomizerLoadout(economizers));
         }
 
         var ship = Ships.FirstOrDefault(item => item.Name == route.ShipName);
