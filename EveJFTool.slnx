@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EveJFTool.App/EveJFTool.App.csproj" />
+    <Project Path="src/EveJFTool.Core/EveJFTool.Core.csproj" />
+    <Project Path="src/EveJFTool.Data/EveJFTool.Data.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EveJFTool.Tests/EveJFTool.Tests.csproj" />
+  </Folder>
+</Solution>
