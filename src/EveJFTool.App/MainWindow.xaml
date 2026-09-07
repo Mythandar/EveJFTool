@@ -95,6 +95,9 @@
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <Button Content="New Route" Command="{Binding NewRouteCommand}" />
+                    <Button Content="Add Return Trip" Command="{Binding AddReturnTripCommand}"
+                            AutomationProperties.AutomationId="AddReturnTripButton"
+                            ToolTip="Append the current route in reverse, preserving each leg's settings" />
                     <ComboBox Width="220" ItemsSource="{Binding SavedRoutes}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSavedRoute}" ToolTip="Saved routes" />
                     <Button Content="Load Route" Command="{Binding LoadRouteCommand}" />
                     <Button Content="Delete Route" Command="{Binding DeleteRouteCommand}" />
@@ -142,7 +145,14 @@
                         </Border>
                     </Popup>
                     <ListBox Grid.Row="2" ItemsSource="{Binding Systems}" SelectedItem="{Binding SelectedSystem}" DisplayMemberPath="Name"
-                             Margin="4,8" Background="#101A29" Foreground="#E8EDF4" BorderBrush="#314158" FontSize="14" />
+                             AutomationProperties.AutomationId="RouteSystemList"
+                             Margin="4,8" Background="#101A29" Foreground="#E8EDF4" BorderBrush="#314158" FontSize="14">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
                     <WrapPanel Grid.Row="3">
                         <Button Content="Add" Command="{Binding AddSystemCommand}" />
                         <Button Content="Insert" Command="{Binding InsertSystemCommand}" />

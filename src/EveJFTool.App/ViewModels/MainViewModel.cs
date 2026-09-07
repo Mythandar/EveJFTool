@@ -60,6 +60,7 @@ public sealed class MainViewModel : ObservableObject
         RemoveSystemCommand = new RelayCommand(RemoveSystem, () => SelectedSystem is not null);
         MoveSystemUpCommand = new RelayCommand(() => MoveSelectedSystem(-1), () => SelectedSystem is not null && Systems.IndexOf(SelectedSystem) > 0);
         MoveSystemDownCommand = new RelayCommand(() => MoveSelectedSystem(1), () => SelectedSystem is not null && Systems.IndexOf(SelectedSystem) < Systems.Count - 1);
+        AddReturnTripCommand = new RelayCommand(AddReturnTrip, () => Legs.Count > 0);
         ClearRouteCommand = new RelayCommand(ClearRoute, () => Systems.Count > 0);
         NewRouteCommand = new RelayCommand(NewRoute);
         RefreshPricesCommand = new AsyncRelayCommand(RefreshPricesAsync, () => SelectedPriceMode != PriceMode.Manual && !IsBusy);
@@ -82,6 +83,7 @@ public sealed class MainViewModel : ObservableObject
     public RelayCommand RemoveSystemCommand { get; }
     public RelayCommand MoveSystemUpCommand { get; }
     public RelayCommand MoveSystemDownCommand { get; }
+    public RelayCommand AddReturnTripCommand { get; }
     public RelayCommand ClearRouteCommand { get; }
     public RelayCommand NewRouteCommand { get; }
     public AsyncRelayCommand RefreshPricesCommand { get; }
@@ -413,6 +415,29 @@ public sealed class MainViewModel : ObservableObject
         RaiseRouteCommandStates();
     }
 
+    private void AddReturnTrip()
+    {
+        var returnLegs = ReturnTripBuilder.CreateReturnLegs(
+            Legs.Select(leg => leg.ToRequest()).ToArray());
+
+        foreach (var returnLeg in returnLegs)
+        {
+            Systems.Add(new RouteSystemViewModel(returnLeg.ToSystem));
+            var leg = new RouteLegViewModel(
+                returnLeg.FromSystem,
+                returnLeg.ToSystem,
+                returnLeg.Kind,
+                returnLeg.Economizers);
+            leg.ConfigurationChanged += OnLegConfigurationChanged;
+            Legs.Add(leg);
+        }
+
+        SelectedSystem = Systems.LastOrDefault();
+        Recalculate();
+        RaiseRouteCommandStates();
+        StatusMessage = $"Added return trip ({returnLegs.Count:N0} legs).";
+    }
+
     private void ClearRoute()
     {
         Systems.Clear();
@@ -673,6 +698,7 @@ public sealed class MainViewModel : ObservableObject
         RemoveSystemCommand.RaiseCanExecuteChanged();
         MoveSystemUpCommand.RaiseCanExecuteChanged();
         MoveSystemDownCommand.RaiseCanExecuteChanged();
+        AddReturnTripCommand.RaiseCanExecuteChanged();
         ClearRouteCommand.RaiseCanExecuteChanged();
         SaveRouteCommand.RaiseCanExecuteChanged();
         SaveAsRouteCommand.RaiseCanExecuteChanged();
