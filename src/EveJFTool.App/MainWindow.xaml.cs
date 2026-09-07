@@ -23,7 +23,8 @@ public partial class MainWindow : Window
         if (DataContext is MainViewModel viewModel)
         {
             var bounds = RestoreBounds;
-            Task.Run(() => viewModel.RememberWindowAsync(bounds.Width, bounds.Height, WindowState == WindowState.Maximized))
+            var maximized = WindowState == WindowState.Maximized;
+            Task.Run(() => viewModel.RememberWindowAsync(bounds.Width, bounds.Height, maximized))
                 .GetAwaiter().GetResult();
         }
 
