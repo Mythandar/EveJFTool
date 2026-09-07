@@ -114,17 +114,33 @@
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <TextBlock Text="ROUTE SYSTEMS" FontSize="12" FontWeight="Bold" Foreground="#8FA1B8" Margin="4,2,4,8" />
-                    <ComboBox Grid.Row="1" ItemsSource="{Binding SystemSuggestions}" Text="{Binding NewSystemName, UpdateSourceTrigger=PropertyChanged}"
-                              IsDropDownOpen="{Binding IsSystemSuggestionOpen, Mode=TwoWay}"
-                              IsEditable="True" IsTextSearchEnabled="False" StaysOpenOnEdit="True"
-                              MaxDropDownHeight="300" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ToolTip="Type any part of an EVE solar-system name">
-                        <ComboBox.ItemContainerStyle>
-                            <Style TargetType="ComboBoxItem">
-                                <Setter Property="Height" Value="30" />
-                            </Style>
-                        </ComboBox.ItemContainerStyle>
-                    </ComboBox>
+                    <TextBox x:Name="SystemSearchBox" Grid.Row="1"
+                             Text="{Binding NewSystemName, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.AutomationId="SystemSearchBox"
+                             ToolTip="Type at least two characters from an EVE solar-system name" />
+                    <Popup Grid.Row="1" PlacementTarget="{Binding ElementName=SystemSearchBox}" Placement="Bottom"
+                           IsOpen="{Binding IsSystemSuggestionOpen, Mode=TwoWay}"
+                           StaysOpen="False" AllowsTransparency="True" Focusable="False">
+                        <Border Width="{Binding ActualWidth, ElementName=SystemSearchBox}"
+                                MaxHeight="300" Background="#172235" BorderBrush="#40536E"
+                                BorderThickness="1" CornerRadius="3">
+                            <ListBox ItemsSource="{Binding SystemSuggestions}"
+                                     SelectedItem="{Binding SelectedSystemSuggestion, Mode=TwoWay}"
+                                     AutomationProperties.AutomationId="SystemSuggestionList"
+                                     Background="#172235" Foreground="#E8EDF4" BorderThickness="0"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.CanContentScroll="True"
+                                     VirtualizingPanel.IsVirtualizing="True"
+                                     VirtualizingPanel.VirtualizationMode="Recycling">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Height" Value="30" />
+                                        <Setter Property="Padding" Value="7,5" />
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                            </ListBox>
+                        </Border>
+                    </Popup>
                     <ListBox Grid.Row="2" ItemsSource="{Binding Systems}" SelectedItem="{Binding SelectedSystem}" DisplayMemberPath="Name"
                              Margin="4,8" Background="#101A29" Foreground="#E8EDF4" BorderBrush="#314158" FontSize="14" />
                     <WrapPanel Grid.Row="3">

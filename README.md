@@ -2,7 +2,7 @@
 
 EveJFTool is a Windows WPF application that calculates straight-line Jump Freighter route distances, per-leg isotope use, and ISK fuel cost. Routes are supplied by the user and each leg independently supports Jump/Gate mode and an economizer loadout.
 
-Version 1 supports Rhea, Anshar, Ark, and Nomad; JDC/JFC/JF skill levels; independently selectable Limited, Experimental, or Prototype modules in all three Jump Drive Economizer slots; Jita sell, Jita buy, and manual prices; route editing; validation; and local saved routes. The route-system editor searches any typed name fragment, prioritizes prefix matches, and presents all matches in a scrollable popup with at most ten visible rows. It intentionally does not perform route finding.
+Version 1 supports Rhea, Anshar, Ark, and Nomad; JDC/JFC/JF skill levels; independently selectable Limited, Experimental, or Prototype modules in all three Jump Drive Economizer slots; Jita sell, Jita buy, and manual prices; route editing; validation; and local saved routes. After two characters, the route-system editor searches any typed name fragment, prioritizes prefix matches, and presents all matches in a virtualized, scrollable popup with at most ten visible rows. It intentionally does not perform route finding.
 
 ## Requirements and build
 

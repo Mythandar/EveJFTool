@@ -27,6 +27,7 @@ public sealed class MainViewModel : ObservableObject
     private decimal? _manualPrice;
     private string _newSystemName = string.Empty;
     private IReadOnlyList<string> _systemSuggestions = [];
+    private string? _selectedSystemSuggestion;
     private bool _isSystemSuggestionOpen;
     private RouteSystemViewModel? _selectedSystem;
     private SavedRoute? _selectedSavedRoute;
@@ -209,6 +210,19 @@ public sealed class MainViewModel : ObservableObject
         private set => SetProperty(ref _systemSuggestions, value);
     }
 
+    public string? SelectedSystemSuggestion
+    {
+        get => _selectedSystemSuggestion;
+        set
+        {
+            if (SetProperty(ref _selectedSystemSuggestion, value) && !string.IsNullOrWhiteSpace(value))
+            {
+                NewSystemName = value;
+                IsSystemSuggestionOpen = false;
+            }
+        }
+    }
+
     public bool IsSystemSuggestionOpen
     {
         get => _isSystemSuggestionOpen;
@@ -361,7 +375,7 @@ public sealed class MainViewModel : ObservableObject
     private void UpdateSystemSuggestions()
     {
         var query = NewSystemName.Trim();
-        if (query.Length == 0 || SystemNames.Count == 0)
+        if (query.Length < 2 || SystemNames.Count == 0)
         {
             SystemSuggestions = [];
             IsSystemSuggestionOpen = false;
