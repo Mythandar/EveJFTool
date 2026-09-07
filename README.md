@@ -11,9 +11,9 @@ Version 1 supports Rhea, Anshar, Ark, and Nomad; JDC/JFC/JF skill levels; all mi
 - Visual Studio 2022 with .NET desktop development, or the `dotnet` CLI
 
 ```powershell
-dotnet restore EveJFTool.slnx
-dotnet build EveJFTool.slnx -c Release
-dotnet test EveJFTool.slnx -c Release
+dotnet restore EveJFTool.sln
+dotnet build EveJFTool.sln -c Release
+dotnet test EveJFTool.sln -c Release
 dotnet run --project src/EveJFTool.App/EveJFTool.App.csproj
 ```
 
