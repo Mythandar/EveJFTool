@@ -7,6 +7,36 @@ namespace EveJFTool.Tests;
 public sealed class DataTests
 {
     [Fact]
+    public void AppPaths_MigratesLegacyFilesWithoutOverwritingPortableData()
+    {
+        var testRoot = Path.Combine(Path.GetTempPath(), "EveJFTool.Tests", Guid.NewGuid().ToString("N"));
+        var portable = Path.Combine(testRoot, "install", "Data");
+        var legacy = Path.Combine(testRoot, "legacy");
+        Directory.CreateDirectory(legacy);
+        File.WriteAllText(Path.Combine(legacy, "routes.json"), "legacy routes");
+        File.WriteAllText(Path.Combine(legacy, "settings.json"), "legacy settings");
+
+        try
+        {
+            var logger = new NullLogger();
+            var paths = new EveJFTool.Data.AppPaths(portable, legacy);
+            paths.EnsureDirectories();
+            File.WriteAllText(paths.SettingsFile, "portable settings");
+
+            paths.MigrateLegacyData(logger);
+
+            Assert.Equal("legacy routes", File.ReadAllText(paths.RoutesFile));
+            Assert.Equal("portable settings", File.ReadAllText(paths.SettingsFile));
+            Assert.Equal(Path.GetFullPath(portable), paths.Root);
+            Assert.False(paths.FellBackToUserProfile);
+        }
+        finally
+        {
+            Directory.Delete(testRoot, true);
+        }
+    }
+
+    [Fact]
     public async Task BundledSde_ResolvesSystemsCaseInsensitively()
     {
         var packaged = Path.Combine(AppContext.BaseDirectory, "Resources", "mapSolarSystems.jsonl");

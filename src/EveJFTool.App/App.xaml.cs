@@ -22,6 +22,11 @@ public partial class App : Application
         paths.EnsureDirectories();
         _logger = new FileLogger(paths.LogFile);
         _logger.Info("EveJFTool starting.");
+        if (paths.FellBackToUserProfile)
+        {
+            _logger.Info($"The application directory is not writable; using user-profile storage at {paths.Root}");
+        }
+        paths.MigrateLegacyData(_logger);
 
         DispatcherUnhandledException += (_, args) =>
         {

@@ -38,7 +38,7 @@ Release output is under `src/EveJFTool.App/bin/Release/net10.0-windows/`.
 To create the self-contained release ZIP and checksum:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-release.ps1 -Version 1.0.0
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-release.ps1 -Version 1.0.1
 ```
 
 ## Architecture
@@ -60,16 +60,20 @@ Jita pricing comes directly from CCP ESI market orders in The Forge, filtered to
 
 ## User data
 
-No administrator rights are needed. Files are stored below:
+By default, all writable application data stays with the extracted application:
 
 ```text
-%LOCALAPPDATA%\EveJFTool\
+<EveJFTool folder>\Data\
   settings.json
   routes.json
   universe\mapSolarSystems.jsonl
   cache\market-prices.json
   logs\EveJFTool.log
 ```
+
+On first launch, existing data from `%LOCALAPPDATA%\EveJFTool\` is copied into this folder when a destination file does not already exist. The original files are retained as a backup.
+
+If the application folder is read-only, EveJFTool falls back to `%LOCALAPPDATA%\EveJFTool\` so it can continue to run without administrator rights.
 
 Generated `bin/`, `obj/`, Visual Studio state, test results, and the project-local CLI cache are ignored by Git.
 
