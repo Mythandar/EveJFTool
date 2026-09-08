@@ -4,6 +4,22 @@ EveJFTool is a Windows WPF application that calculates straight-line Jump Freigh
 
 Version 1 supports Rhea, Anshar, Ark, and Nomad; JDC/JFC/JF skill levels; independently selectable Limited, Experimental, or Prototype modules in all three Jump Drive Economizer slots; Jita sell, Jita buy, and manual prices; route editing, one-click mirrored return trips, validation, and local saved routes. After two characters, the route-system editor searches any typed name fragment, prioritizes prefix matches, and presents all matches in a virtualized, scrollable popup with at most ten visible rows. It intentionally does not perform route finding.
 
+## Download and run
+
+Download the latest `EveJFTool-*-win-x64.zip` from [GitHub Releases](https://github.com/Mythandar/EveJFTool/releases), extract it, and run `EveJFTool.exe`. The release is self-contained and does not require a separate .NET installation.
+
+The application is currently unsigned, so Windows SmartScreen may show an unrecognized-app warning. Verify the ZIP against the published SHA-256 checksum before running it.
+
+## Using the calculator
+
+1. Select the Jump Freighter and character skill levels.
+2. Choose Jita sell, Jita buy, or manual isotope pricing.
+3. Type at least two characters of a solar-system name and select a match, then add it to the route.
+4. Set each leg to Jump or Gate and select up to three Economizer module types per jump.
+5. Review per-leg fuel and ISK cost plus the route totals. Use **Add Return Trip** to append a mirrored trip with the same leg configurations.
+
+Routes and user preferences can be saved locally. EVE login is not required.
+
 ## Requirements and build
 
 - Windows x64
@@ -18,6 +34,12 @@ dotnet run --project src/EveJFTool.App/EveJFTool.App.csproj
 ```
 
 Release output is under `src/EveJFTool.App/bin/Release/net10.0-windows/`.
+
+To create the self-contained release ZIP and checksum:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-release.ps1 -Version 1.0.0
+```
 
 ## Architecture
 
@@ -50,3 +72,7 @@ No administrator rights are needed. Files are stored below:
 ```
 
 Generated `bin/`, `obj/`, Visual Studio state, test results, and the project-local CLI cache are ignored by Git.
+
+## Disclaimer
+
+EVE Online and all related trademarks are the property of CCP hf. EveJFTool is an independent community tool and is not affiliated with or endorsed by CCP hf.
