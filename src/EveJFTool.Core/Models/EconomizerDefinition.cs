@@ -9,9 +9,9 @@ public sealed record EconomizerLoadout
     public EconomizerLoadout(IReadOnlyList<EconomizerDefinition> modules)
     {
         ArgumentNullException.ThrowIfNull(modules);
-        if (modules.Count > 3)
+        if (modules.Count > 4)
         {
-            throw new ArgumentException("Jump Freighters have three low slots; at most three economizers are supported.", nameof(modules));
+            throw new ArgumentException("At most four Economizers are supported (Rorqual low slots).", nameof(modules));
         }
 
         Modules = modules.ToArray();

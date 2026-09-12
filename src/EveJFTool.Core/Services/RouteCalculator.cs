@@ -54,6 +54,9 @@ public sealed class RouteCalculator(IUniverseRepository universe)
             return Invalid(request, "Consecutive systems must be different", ship.IsotopeName);
         }
 
+        if (!ship.CanEnterHighSecurity && (from.SecurityStatus >= 0.45 || to.SecurityStatus >= 0.45))
+            return Invalid(request, $"{ship.ShipClass} cannot travel through highsec", ship.IsotopeName);
+
         if (request.Kind == LegKind.Gate)
         {
             return new(request.FromSystem, request.ToSystem, request.Kind, 0, 0, ship.IsotopeName, isotopePrice, 0, true, "Gate");
@@ -68,6 +71,9 @@ public sealed class RouteCalculator(IUniverseRepository universe)
         {
             return Invalid(request, "Jump drives cannot target Pochven", ship.IsotopeName);
         }
+
+        if (request.Economizers.Modules.Count > ship.EconomizerSlots)
+            return Invalid(request, $"{ship.Name} supports at most {ship.EconomizerSlots} Economizers", ship.IsotopeName);
 
         var distance = DistanceCalculator.InLightYears(from, to);
         var maximumRange = FuelCalculator.MaximumRange(ship, skills);

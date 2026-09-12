@@ -1,5 +1,44 @@
 # Verified EVE mechanics
 
+## All jump-drive ships (version 1.1)
+
+Reverified 2026-09-12 using the [official CCP JSONL SDE archive](https://developers.eveonline.com/static-data/eve-online-static-data-latest-jsonl.zip), whose `_sde.jsonl` identifies build **3503375**, released **2026-09-10T11:09:04Z**. This is a moving URL; build identity matters. See [CCP's SDE documentation](https://developers.eveonline.com/docs/services/static-data/).
+
+Selection rule: published `types.jsonl` entries in a `groups.jsonl` group with category 6 (ships), with positive dogma attribute 867. This returns **56 ships**, including Python, Sarathiel, Azariel, and all four Command Carriers. Unpublished/development types are excluded. The complete named catalog and isotope mapping are in `JumpShipCatalog.cs`; the existing four JFs remain in `JumpFreighterCatalog.cs` for compatibility.
+
+| Class | Count | Base fuel / LY | Base LY | JDC V LY |
+|---|---:|---:|---:|---:|
+| Jump Freighter | 4 | Hull-specific, table below | 5 | 10 |
+| Black Ops | 6 | 700 | 4 | 8 |
+| Carrier | 4 | 3,000 | 3.5 | 7 |
+| Command Carrier | 4 | 3,000 | 3.75 | 7.5 |
+| Force Auxiliary | 6 | 3,000 | 3.5 | 7 |
+| Dreadnought | 13 | 3,000 | 3.5 | 7 |
+| Lancer Dreadnought | 4 | 3,000 | 4 | 8 |
+| Supercarrier | 6 | 3,000 | 3 | 6 |
+| Titan | 8 | 3,000 | 3 | 6 |
+| Capital Industrial Ship (Rorqual) | 1 | 4,000 | 5 | 10 |
+
+All figures are dogma attributes 866/867/868, not inferred from faction names. For example Revenant, Marshal, Python, and Zirnitra use Helium; Rorqual uses Oxygen. Fuel isotope IDs remain 16274 (Helium), 17887 (Oxygen), 17888 (Nitrogen), and 17889 (Hydrogen).
+
+Checked `typeBonus.jsonl` and all `dogmaEffects.jsonl` modifiers targeting attributes 867/868. JDC uses effect 1581; JFC uses 3532; the additional hull fuel skill modifier uses 3593 and belongs to Jump Freighters only. There is no extra Black Ops, carrier, dreadnought, or Capital Industrial Ships skill multiplier on own-ship jump fuel. The Rorqual's 5%/level fuel reduction is explicitly for the **Capital Industrial Core**, not its jump drive.
+
+Economizer descriptions explicitly restrict fitting to **Jump Freighters and Rorquals**. JFs have three low slots; Rorqual has four (attribute 12). The fourth stacking coefficient is `0.282955154023261`. All four strengths are sorted before applying penalties, and fuel is rounded once after multiplication. Other hulls cannot fit these modules, regardless of low-slot count. The calculation API rejects incompatible loadouts; the UI disables incompatible slots and ignores their retained selections, with an explanatory label.
+
+Generalized own-ship fuel formula:
+
+```text
+ceil(distanceLY * baseFuel * (1 - 0.1 * JFC)
+     * (JF hull ? (1 - 0.1 * JumpFreighters) : 1)
+     * compatibleEconomizerMultiplier)
+```
+
+JDC V / JFC V / JF V at exactly 1 LY therefore costs 350 isotopes for Black Ops, 1,500 for combat capitals, and 2,000 for Rorqual, without Economizers. Automated tests cover every class, faction exceptions, invalid fitting, fourth-module stacking, highsec gate restrictions, and capital totals. Existing JF real-route regressions remain unchanged. These new hull baselines are SDE-derived checks, not claimed live-client or independent planner observations. Existing rounding evidence below is retained; no correction constants were introduced.
+
+Scope is a ship's own jump drive, not jump portals, conduit passengers, industrial cores, or micro jump drives. Cyno availability, fatigue, fitting/activation prerequisites, and gate adjacency are not validated. Highsec movement is restricted to Black Ops and Jump Freighters, and no hull can jump into highsec.
+
+## Original Jump Freighter verification
+
 Verified on 2026-09-06 against Tranquility ESI and CCP Static Data Export (SDE) build **3494416**, released 2026-09-04. The application intentionally treats these values as hull data, not ship-specific code.
 
 ## Jump Freighter hull data

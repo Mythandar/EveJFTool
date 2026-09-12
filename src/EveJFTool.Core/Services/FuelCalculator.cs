@@ -12,7 +12,8 @@ public static class FuelCalculator
     [
         1.0,
         0.869119980021702,
-        0.570583143034018
+        0.570583143034018,
+        0.282955154023261
     ];
 
     public static double MaximumRange(ShipDefinition ship, SkillProfile skills) =>
@@ -52,7 +53,10 @@ public static class FuelCalculator
         }
 
         var jfcMultiplier = 1 - (JumpFuelConservationReductionPerLevel * skills.JumpFuelConservation);
-        var jfMultiplier = 1 - (JumpFreightersReductionPerLevel * skills.JumpFreighters);
+        if (loadout.Modules.Count > ship.EconomizerSlots)
+            throw new ArgumentException($"{ship.Name} supports at most {ship.EconomizerSlots} Economizers.", nameof(loadout));
+
+        var jfMultiplier = 1 - (ship.JumpFreightersFuelReductionPerLevel * skills.JumpFreighters);
         var exactFuel = distanceLightYears * ship.BaseFuelPerLightYear * jfcMultiplier * jfMultiplier *
                         EconomizerMultiplier(loadout);
 
