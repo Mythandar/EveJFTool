@@ -365,6 +365,36 @@ public sealed class MainViewModel : ObservableObject
         RebuildLegs();
     }
 
+    public async Task<IReadOnlyList<NearbySystem>> FindNearbySystemsAsync(RouteSystemViewModel source)
+    {
+        var ship = SelectedShip;
+        var skills = CurrentSkills;
+        try
+        {
+            return await Task.Run(() => new NearbySystemFinder(_universe).Find(source.Name, ship, skills));
+        }
+        catch (Exception exception)
+        {
+            _logger.Error("Nearby-system search failed.", exception);
+            throw;
+        }
+    }
+
+    public void InsertNearbySystem(RouteSystemViewModel source, NearbySystem candidate)
+    {
+        var index = Systems.IndexOf(source);
+        if (index < 0) return;
+        if (index + 1 < Systems.Count && Systems[index + 1].Name == candidate.Name)
+        {
+            StatusMessage = $"{candidate.Name} is already the next system.";
+            return;
+        }
+        var added = new RouteSystemViewModel(candidate.Name);
+        Systems.Insert(index + 1, added);
+        SelectedSystem = added;
+        RebuildLegs();
+    }
+
     private bool TryResolveEnteredSystem(out string canonicalName)
     {
         if (_universe.TryGetSystem(NewSystemName, out var system))

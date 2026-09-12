@@ -13,7 +13,7 @@
     <UseWPF>true</UseWPF>
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>EveJFTool</AssemblyName>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Mythandar</Authors>
     <Product>EVE Jump Ship Calculator</Product>
     <Description>Windows route, isotope-use, and fuel-cost calculator for EVE Online jump-drive ships.</Description>

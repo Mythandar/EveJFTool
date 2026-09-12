@@ -154,12 +154,14 @@
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+                                <EventSetter Event="PreviewMouseRightButtonDown" Handler="RouteSystem_RightClick" />
                             </Style>
                         </ListBox.ItemContainerStyle>
                     </ListBox>
                     <WrapPanel Grid.Row="3">
                         <Button Content="Add" Command="{Binding AddSystemCommand}" />
                         <Button Content="Insert" Command="{Binding InsertSystemCommand}" />
+                        <Button Content="In Range…" Click="FindNearby_Click" ToolTip="Find the next jump from the selected route system" />
                         <Button Content="Remove" Command="{Binding RemoveSystemCommand}" />
                         <Button Content="↑" Command="{Binding MoveSystemUpCommand}" ToolTip="Move selected system up" />
                         <Button Content="↓" Command="{Binding MoveSystemDownCommand}" ToolTip="Move selected system down" />

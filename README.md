@@ -22,6 +22,8 @@ The application is currently unsigned, so Windows SmartScreen may show an unreco
 
 Routes and user preferences can be saved locally. EVE login is not required.
 
+To plan the next jump, right-click any added route system and choose **Find systems in jump range**, or select it and click **In Range**. The picker uses the selected hull and JDC skill, lists candidates nearest-first with LY distance and security, and lets you filter by name. **Insert after source** adds the selection immediately after that occurrence of the source (appending when it is last). The added system becomes selected so you can repeat the process. Existing onward legs are recalculated and may become invalid. Highsec and Pochven destinations are excluded; this is a distance-planning aid, not a guarantee of cyno availability or an automatic route finder. It works offline using cached universe data.
+
 ## Requirements and build
 
 - Windows x64
@@ -40,7 +42,7 @@ Release output is under `src/EveJFTool.App/bin/Release/net10.0-windows/`.
 To create the self-contained release ZIP and checksum:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-release.ps1 -Version 1.1.0
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-release.ps1 -Version 1.2.0
 ```
 
 ## Architecture
