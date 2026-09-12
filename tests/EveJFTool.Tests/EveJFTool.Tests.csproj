@@ -16,6 +16,10 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <!-- These view models have no WPF dependency; test the actual UI calculation adapter cross-platform. -->
+    <Compile Include="..\..\src\EveJFTool.App\ViewModels\ObservableObject.cs" Link="ViewModels\ObservableObject.cs" />
+    <Compile Include="..\..\src\EveJFTool.App\ViewModels\EconomizerModuleOption.cs" Link="ViewModels\EconomizerModuleOption.cs" />
+    <Compile Include="..\..\src\EveJFTool.App\ViewModels\RouteLegViewModel.cs" Link="ViewModels\RouteLegViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>

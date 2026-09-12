@@ -70,7 +70,10 @@ public sealed class MainViewModel : ObservableObject
         DeleteRouteCommand = new AsyncRelayCommand(DeleteRouteAsync, () => SelectedSavedRoute is not null);
     }
 
-    public IReadOnlyList<ShipDefinition> Ships => JumpFreighterCatalog.All;
+    public IReadOnlyList<ShipDefinition> Ships => JumpShipCatalog.All;
+    public string ShipFittingText => SelectedShip.EconomizerSlots == 0
+        ? "Economizers unavailable; saved selections are ignored."
+        : $"{SelectedShip.EconomizerSlots} Economizer slots (disabled slots ignored).";
     public IReadOnlyList<int> SkillLevels { get; } = [0, 1, 2, 3, 4, 5];
     public IReadOnlyList<PriceMode> PriceModes { get; } = Enum.GetValues<PriceMode>();
     public IReadOnlyList<string> SystemNames { get; private set; } = [];
@@ -103,6 +106,7 @@ public sealed class MainViewModel : ObservableObject
                 OnPropertyChanged(nameof(ManualPrice));
                 OnPropertyChanged(nameof(SelectedFuelType));
                 OnPropertyChanged(nameof(MaximumRangeText));
+                OnPropertyChanged(nameof(ShipFittingText));
                 UpdatePriceDisplay();
                 Recalculate();
                 PersistSettingsSoon();
@@ -306,7 +310,7 @@ public sealed class MainViewModel : ObservableObject
             UpdateSystemSuggestions();
 
             _settings = await _stores.LoadSettingsAsync(cancellationToken);
-            _selectedShip = JumpFreighterCatalog.All.FirstOrDefault(ship => ship.Name == _settings.SelectedShip) ?? JumpFreighterCatalog.All[0];
+            _selectedShip = Ships.FirstOrDefault(ship => ship.Name == _settings.SelectedShip) ?? JumpFreighterCatalog.All[0];
             _jumpDriveCalibration = Math.Clamp(_settings.JumpDriveCalibration, 0, 5);
             _jumpFuelConservation = Math.Clamp(_settings.JumpFuelConservation, 0, 5);
             _jumpFreighters = Math.Clamp(_settings.JumpFreighters, 0, 5);
@@ -418,7 +422,7 @@ public sealed class MainViewModel : ObservableObject
     private void AddReturnTrip()
     {
         var returnLegs = ReturnTripBuilder.CreateReturnLegs(
-            Legs.Select(leg => leg.ToRequest()).ToArray());
+            Legs.Select(leg => new RouteLegRequest(leg.From, leg.To, leg.Kind, leg.EconomizerLoadout)).ToArray());
 
         foreach (var returnLeg in returnLegs)
         {
@@ -484,6 +488,7 @@ public sealed class MainViewModel : ObservableObject
         if (!_initialized) return;
         try
         {
+            foreach (var leg in Legs) leg.ConfigureShip(SelectedShip);
             var calculation = _calculator.Calculate(Legs.Select(leg => leg.ToRequest()).ToArray(), SelectedShip, CurrentSkills, CurrentPrice());
             for (var index = 0; index < Legs.Count; index++)
             {
@@ -636,7 +641,7 @@ public sealed class MainViewModel : ObservableObject
             var economizers = saved.EconomizerTypeIds
                 .Select(typeId => EconomizerCatalog.All.FirstOrDefault(module => module.TypeId == typeId))
                 .OfType<EconomizerDefinition>()
-                .Take(3)
+                .Take(4)
                 .ToArray();
             Legs[index].SetEconomizerLoadout(new EconomizerLoadout(economizers));
         }

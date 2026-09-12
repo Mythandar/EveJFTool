@@ -8,6 +8,8 @@ public sealed class RouteLegViewModel : ObservableObject
     private EconomizerModuleOption _economizer1;
     private EconomizerModuleOption _economizer2;
     private EconomizerModuleOption _economizer3;
+    private EconomizerModuleOption _economizer4;
+    private int _economizerSlots = 3;
     private RouteLegResult? _result;
 
     public RouteLegViewModel(string from, string to, LegKind kind, EconomizerLoadout loadout)
@@ -20,6 +22,7 @@ public sealed class RouteLegViewModel : ObservableObject
         _economizer1 = selected[0];
         _economizer2 = selected[1];
         _economizer3 = selected[2];
+        _economizer4 = selected[3];
     }
 
     public event EventHandler? ConfigurationChanged;
@@ -37,12 +40,24 @@ public sealed class RouteLegViewModel : ObservableObject
             if (SetProperty(ref _kind, value))
             {
                 OnPropertyChanged(nameof(IsJump));
+                OnPropertyChanged(nameof(CanFitEconomizers));
+                OnPropertyChanged(nameof(CanFitFourthEconomizer));
                 ConfigurationChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }
 
     public bool IsJump => Kind == LegKind.Jump;
+    public bool CanFitEconomizers => IsJump && _economizerSlots > 0;
+    public bool CanFitFourthEconomizer => IsJump && _economizerSlots >= 4;
+
+    public void ConfigureShip(ShipDefinition ship)
+    {
+        if (_economizerSlots == ship.EconomizerSlots) return;
+        _economizerSlots = ship.EconomizerSlots;
+        OnPropertyChanged(nameof(CanFitEconomizers));
+        OnPropertyChanged(nameof(CanFitFourthEconomizer));
+    }
 
     public EconomizerModuleOption Economizer1
     {
@@ -62,12 +77,23 @@ public sealed class RouteLegViewModel : ObservableObject
         set => SetEconomizer(ref _economizer3, value, nameof(Economizer3));
     }
 
+    public EconomizerModuleOption Economizer4
+    {
+        get => _economizer4;
+        set => SetEconomizer(ref _economizer4, value, nameof(Economizer4));
+    }
+
+    private EconomizerDefinition?[] SelectedModules =>
+        [Economizer1.Module, Economizer2.Module, Economizer3.Module, Economizer4.Module];
+
     public EconomizerLoadout EconomizerLoadout => new(
-        new[] { Economizer1.Module, Economizer2.Module, Economizer3.Module }
+        SelectedModules
             .OfType<EconomizerDefinition>()
             .ToArray());
 
-    public RouteLegRequest ToRequest() => new(From, To, Kind, EconomizerLoadout);
+    // Keep saved selections when changing hulls, but only apply slots this hull can fit.
+    public RouteLegRequest ToRequest() => new(From, To, Kind,
+        new EconomizerLoadout(SelectedModules.Take(_economizerSlots).OfType<EconomizerDefinition>().ToArray()));
 
     public void SetEconomizerLoadout(EconomizerLoadout loadout)
     {
@@ -75,9 +101,11 @@ public sealed class RouteLegViewModel : ObservableObject
         _economizer1 = selected[0];
         _economizer2 = selected[1];
         _economizer3 = selected[2];
+        _economizer4 = selected[3];
         OnPropertyChanged(nameof(Economizer1));
         OnPropertyChanged(nameof(Economizer2));
         OnPropertyChanged(nameof(Economizer3));
+        OnPropertyChanged(nameof(Economizer4));
         ConfigurationChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -105,8 +133,8 @@ public sealed class RouteLegViewModel : ObservableObject
         loadout.Modules
             .OrderByDescending(module => module.FuelReductionFraction)
             .Select(EconomizerModuleOption.FromModule)
-            .Concat(Enumerable.Repeat(EconomizerModuleOption.All[0], 3))
-            .Take(3)
+            .Concat(Enumerable.Repeat(EconomizerModuleOption.All[0], 4))
+            .Take(4)
             .ToArray();
 
     private void SetEconomizer(
